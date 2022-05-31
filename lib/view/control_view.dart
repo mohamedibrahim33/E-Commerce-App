@@ -6,13 +6,13 @@ import 'package:get/get.dart';
 import '../core/view_model/control_view_model.dart';
 
 class ControlView extends GetWidget<AuthViewModel> {
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       return (Get.find<AuthViewModel>().user == null)
           ? LoginView()
           : GetBuilder<ControlViewModel>(
+              init: ControlViewModel(),
               builder: (controller) => Scaffold(
                 body: controller.currentWidget,
                 bottomNavigationBar: bottomNavigationBar(),
@@ -23,7 +23,7 @@ class ControlView extends GetWidget<AuthViewModel> {
 
   Widget bottomNavigationBar() {
     return GetBuilder<ControlViewModel>(
-      init: ControlViewModel(),
+      init: Get.find<ControlViewModel>(),
       builder: (controller) => BottomNavigationBar(
         items: [
           BottomNavigationBarItem(

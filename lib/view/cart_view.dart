@@ -4,19 +4,31 @@ import 'package:ecommerce_app/core/view_model/cart_view_model.dart';
 import 'package:ecommerce_app/view/widget/custom_button.dart';
 import 'package:ecommerce_app/view/widget/custom_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 class CartView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
+    return GetBuilder<CartViewModel>(
+      init: CartViewModel(),
+      builder: (controller) => controller.cartProduct.isEmpty ?Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Expanded(
-            child: GetBuilder<CartViewModel>(
-              init: Get.find<CartViewModel>(),
-              builder: (controller) => ListView.separated(
+          SvgPicture.asset('assets/images/cart_empty.svg',height: 200,width: 200,),
+          const SizedBox(height: 20,),
+          const CustomText(
+            text: 'Cart Empty',
+            fontSize: 30,
+            alignment: Alignment.topCenter,
+          ),
+        ],
+      ):Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.separated(
                 itemBuilder: (context, index) {
                   return Container(
                     height: 140,
@@ -98,45 +110,45 @@ class CartView extends StatelessWidget {
                 itemCount: controller.cartProduct.length,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: 30,
-              left: 30,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children:  [
-                    const CustomText(
-                      text: 'Total',
-                      fontSize: 22,
-                      color: Colors.grey,
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    GetBuilder<CartViewModel>(
-                      builder:(controller)=> CustomText(
-                        text: '\$ ${controller.totalPrice}',
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 30,
+                left: 30,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    children: [
+                      const CustomText(
+                        text: 'Total',
                         fontSize: 22,
-                        color: primaryColor,
+                        color: Colors.grey,
                       ),
-                    ),
-                  ],
-                ),
-                Container(
-                    width: 140,
-                    height: 50,
-                    child: CustomButton(
-                      text: 'CheckOut',
-                      onPressed: () {},
-                    ))
-              ],
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      GetBuilder<CartViewModel>(
+                        builder: (controller) => CustomText(
+                          text: '\$ ${controller.totalPrice}',
+                          fontSize: 22,
+                          color: primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                      width: 140,
+                      height: 50,
+                      child: CustomButton(
+                        text: 'CheckOut',
+                        onPressed: () {},
+                      ))
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:ecommerce_app/core/services/firestore_user.dart';
+import 'package:ecommerce_app/helper/local_storage_data.dart';
 import 'package:ecommerce_app/model/user_model.dart';
 import 'package:ecommerce_app/view/control_view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,9 +10,8 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import '../../view/home_view.dart';
-
 class AuthViewModel extends GetxController {
+  final LocalStorageData localStorageData = Get.find();
    String? email, password, name;
 
   final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
@@ -26,6 +26,9 @@ class AuthViewModel extends GetxController {
     // TODO: implement onInit
     super.onInit();
     _user.bindStream(_auth.authStateChanges());
+    if(_auth.currentUser!=null){
+      getCurrentUserData(_auth.currentUser!.uid);
+    }
   }
 
   void googleSignInMethod() async {
@@ -40,7 +43,6 @@ class AuthViewModel extends GetxController {
     );
         await _auth.signInWithCredential(credential).then((value){
           saveUser(value);
-          Get.offAll(() => ControlView());
         });
 
   }
@@ -54,15 +56,16 @@ class AuthViewModel extends GetxController {
       // Once signed in, return the UserCredential
           await _auth.signInWithCredential(credential).then((value){
             saveUser(value);
-            Get.offAll(() => ControlView());
           });
     }
   }
 
   void signInWithEmailAndPassword() async {
     try {
-      await _auth.signInWithEmailAndPassword(email: email!, password: password!);
-      Get.offAll(() => ControlView());
+      await _auth.signInWithEmailAndPassword(email: email!, password: password!)
+          .then((value)async{
+        getCurrentUserData(value.user!.uid);
+      });
     } catch (e) {
       Get.snackbar(
         'Error Login Account',
@@ -78,7 +81,6 @@ class AuthViewModel extends GetxController {
         .createUserWithEmailAndPassword(email: email!, password: password!)
         .then((value) {
           saveUser(value);
-          Get.offAll(() => ControlView());
     }).catchError((e) {
       Get.snackbar(
         'Error Sign up',
@@ -90,11 +92,26 @@ class AuthViewModel extends GetxController {
   }
 
   void saveUser(UserCredential user) async {
-    await FireStoreUser().addUserToFireStore(UserModel(
+    UserModel userModel=UserModel(
       name: name??user.user!.displayName,
       email: user.user!.email,
       uId: user.user!.uid,
       photo: '',
-    ));
+    );
+    await FireStoreUser().addUserToFireStore(
+    userModel);
+    setUserToSharedPreference(userModel);
+  }
+
+  void getCurrentUserData(String uid)async{
+    await FireStoreUser().getCurrentUser(uid).then((value) {
+      setUserToSharedPreference(
+          UserModel.fromJson(value.data() as Map<String, dynamic>));
+    });
+        }
+
+  void setUserToSharedPreference(UserModel userModel)async{
+    await localStorageData.setUser(userModel);
+    Get.offAll(ControlView());
   }
 }

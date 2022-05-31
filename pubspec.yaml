@@ -25,6 +25,9 @@ dependencies:
   cloud_firestore: ^3.1.12
   sqflite: ^2.0.2+1
   path: ^1.8.0
+  shared_preferences: ^2.0.13
+  flutter_svg: ^1.0.0
+
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +42,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/icons/
     - assets/fonts/
 
   fonts:

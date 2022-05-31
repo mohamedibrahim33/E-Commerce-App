@@ -10,7 +10,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeViewModel>(
-      init:Get.find<HomeViewModel>() ,
+      init:HomeViewModel() ,
       builder: (controller) =>controller.loading.value?const Center(child:  CircularProgressIndicator()): Scaffold(
         body: SingleChildScrollView(
           child: Padding(
